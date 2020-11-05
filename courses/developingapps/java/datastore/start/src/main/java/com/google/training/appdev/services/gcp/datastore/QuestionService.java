@@ -15,14 +15,12 @@
  */
 package com.google.training.appdev.services.gcp.datastore;
 
-// TODO: Import the com.google.cloud.datastore.* package
+import com.google.cloud.datastore.*;
 
-
-
-// END TODO
 
 import com.google.training.appdev.services.gcp.domain.Question;
 
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -37,7 +35,8 @@ public class QuestionService {
 // static method.
 // Use the getService() method of the DatastoreOptions
 // object to get the Datastore client
-
+  private Datastore datastore =
+      DatastoreOptions.getDefaultInstance().getService();
 
 // END TODO
 
@@ -46,13 +45,14 @@ public class QuestionService {
 // There are two main ways of writing a key:
 // 1. Specify the kind, and let Datastore generate a unique //    numeric id
 // 2. Specify the kind and a unique string id
-
+private static final String ENTITY_KIND = "Question";
 
 
 // END TODO
 
 // TODO: Create a KeyFactory for Question entities
-
+private final KeyFactory keyFactory =
+          datastore.newKeyFactory().setKind(ENTITY_KIND);
 
 // END TODO
 
@@ -62,7 +62,8 @@ public class QuestionService {
 
 // TODO: Modify return type to Key
 
-    public String createQuestion(Question question) {
+    public Key createQuestion(Question question) {
+          Key key = datastore.allocateId(keyFactory.newKey());
 
 // END TODO
 
@@ -78,10 +79,6 @@ public class QuestionService {
 // Values are retrieved from the Domain object
 
 
-
-
-
-
 // END TODO
 
 // TODO: Save the entity
@@ -89,8 +86,20 @@ public class QuestionService {
 // END TODO
 
 // TODO: Return the key
+ Entity questionEntity = Entity.newBuilder(key)
+      .set(Question.QUIZ, question.getQuiz())
+      .set(Question.AUTHOR, question.getAuthor())
+      .set(Question.TITLE, question.getTitle())
+      .set(Question.ANSWER_ONE,question.getAnswerOne())
+      .set(Question.ANSWER_TWO, question.getAnswerTwo())
+      .set(Question.ANSWER_THREE,question.getAnswerThree())
+      .set(Question.ANSWER_FOUR, question.getAnswerFour())
+      .set(Question.CORRECT_ANSWER,
+                              question.getCorrectAnswer())
+      .build();
 
-        return "Replace this string with the key";
+       datastore.put(questionEntity);
+        return key;
 
 // END TODO
     }
